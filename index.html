@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高校入試 歴史一問一答</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .quiz-area {
+            padding: 40px;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .result.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .score-area {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .score {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .start-screen h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .start-screen p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>高校入試 歴史一問一答</h1>
+            <p>日本史の重要事項をマスターしよう！</p>
+        </div>
+
+        <div id="startScreen" class="start-screen">
+            <h2>歴史の知識を試してみよう！</h2>
+            <p>高校入試レベルの日本史問題を一問一答形式で出題します。<br>
+            正解するとポイントが獲得できます。頑張って満点を目指しましょう！</p>
+            <button class="btn btn-primary" onclick="startQuiz()">クイズを開始</button>
+        </div>
+
+        <div id="quizArea" class="quiz-area hidden">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">問題 1/20</div>
+                <div class="question-text" id="questionText"></div>
+                <input type="text" class="answer-input" id="answerInput" placeholder="答えを入力してください..." onkeypress="handleKeyPress(event)">
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="checkAnswer()">回答</button>
+                <button class="btn btn-secondary" onclick="showAnswer()">答えを見る</button>
+                <button class="btn btn-success" onclick="nextQuestion()">次の問題</button>
+            </div>
+
+            <div id="result" class="result hidden"></div>
+        </div>
+
+        <div class="score-area">
+            <div class="score" id="score">正解数: 0/0</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 正解音と不正解音を作成
+        function createCorrectSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function createIncorrectSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(220, audioContext.currentTime); // A3
+            oscillator.frequency.setValueAtTime(196, audioContext.currentTime + 0.15); // G3
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.4);
+        }
+
+        const questions = [
+            { question: "1192年に源頼朝が征夷大将軍に任命されて開いた幕府は？", answer: "鎌倉幕府" },
+            { question: "1333年に鎌倉幕府を滅ぼした後醍醐天皇による政治を何という？", answer: "建武の新政" },
+            { question: "1338年に足利尊氏が開いた幕府は？", answer: "室町幕府" },
+            { question: "1467年から1477年まで続いた大乱を何という？", answer: "応仁の乱" },
+            { question: "1543年に種子島に伝来したものは？", answer: "鉄砲" },
+            { question: "1549年に日本にキリスト教を伝えたイエズス会宣教師は？", answer: "フランシスコ・ザビエル" },
+            { question: "1582年に明智光秀が織田信長を討った事件を何という？", answer: "本能寺の変" },
+            { question: "1590年に豊臣秀吉が全国統一を完成させた戦いは？", answer: "小田原征伐" },
+            { question: "1600年の関ヶ原の戦いで勝利し、江戸幕府を開いた人物は？", answer: "徳川家康" },
+            { question: "1633年から1639年にかけて出された日本人の海外渡航を禁止した法令は？", answer: "鎖国令" },
+            { question: "1637年に起こったキリシタン農民の反乱を何という？", answer: "島原の乱" },
+            { question: "1716年から1745年まで8代将軍徳川吉宗が行った政治改革を何という？", answer: "享保の改革" },
+            { question: "1787年から1793年まで松平定信が行った政治改革を何という？", answer: "寛政の改革" },
+            { question: "1841年から1843年まで水野忠邦が行った政治改革を何という？", answer: "天保の改革" },
+            { question: "1853年に浦賀に来航したアメリカの提督は？", answer: "ペリー" },
+            { question: "1854年に日米和親条約を結んだ徳川幕府の老中は？", answer: "阿部正弘" },
+            { question: "1867年に江戸幕府最後の将軍が政権を朝廷に返上した出来事を何という？", answer: "大政奉還" },
+            { question: "1868年に出された新政府の基本方針を示した文書は？", answer: "五箇条の御誓文" },
+            { question: "1871年に実施された中央集権国家建設のための政策は？", answer: "廃藩置県" },
+            { question: "1889年に発布された日本初の憲法は？", answer: "大日本帝国憲法" }
+        ];
+
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let answered = false;
+
+        function startQuiz() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('quizArea').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `問題 ${currentQuestion + 1}/${questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('result').classList.add('hidden');
+            answered = false;
+            updateProgress();
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+            
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            const correctAnswer = questions[currentQuestion].answer;
+            const resultDiv = document.getElementById('result');
+            
+            if (userAnswer === correctAnswer) {
+                resultDiv.textContent = '正解！';
+                resultDiv.className = 'result correct';
+                correctAnswers++;
+                createCorrectSound();
+            } else {
+                resultDiv.textContent = `不正解。正解は「${correctAnswer}」です。`;
+                resultDiv.className = 'result incorrect';
+                createIncorrectSound();
+            }
+            
+            resultDiv.classList.remove('hidden');
+            answered = true;
+            updateScore();
+        }
+
+        function showAnswer() {
+            const correctAnswer = questions[currentQuestion].answer;
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = `答え: ${correctAnswer}`;
+            resultDiv.className = 'result';
+            resultDiv.style.background = '#fff3cd';
+            resultDiv.style.color = '#856404';
+            resultDiv.style.border = '1px solid #ffeaa7';
+            resultDiv.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = `正解数: ${correctAnswers}/${currentQuestion + 1}`;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showFinalScore() {
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+            let message = '';
+            
+            if (percentage >= 90) {
+                message = '素晴らしい！歴史マスターです！';
+            } else if (percentage >= 70) {
+                message = 'よくできました！もう少しで完璧です！';
+            } else if (percentage >= 50) {
+                message = '頑張りました！復習して再挑戦しましょう！';
+            } else {
+                message = '基礎から復習しましょう！';
+            }
+
+            document.getElementById('quizArea').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #667eea; margin-bottom: 20px;">クイズ終了！</h2>
+                    <div style="font-size: 2em; font-weight: bold; color: #333; margin-bottom: 20px;">
+                        ${correctAnswers}/${questions.length}問正解
+                    </div>
+                    <div style="font-size: 1.5em; font-weight: bold; color: #667eea; margin-bottom: 20px;">
+                        正答率: ${percentage}%
+                    </div>
+                    <div style="font-size: 1.2em; margin-bottom: 30px;">
+                        ${message}
+                    </div>
+                    <button class="btn btn-primary" onclick="location.reload()">もう一度挑戦</button>
+                </div>
+            `;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        }
+
+        document.getElementById('answerInput').focus();
+    </script>
+</body>
+</html>
