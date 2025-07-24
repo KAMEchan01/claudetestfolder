@@ -4,7 +4,12 @@
       "Bash(git push:*)",
       "Bash(gh repo view:*)",
       "Bash(gh api:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(diff:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }
