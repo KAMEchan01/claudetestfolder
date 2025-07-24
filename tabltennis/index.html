@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Tennis Game - 卓球ゲーム</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .game-container {
+            position: relative;
+            width: 900px;
+            height: 500px;
+            background: linear-gradient(to bottom, #0f4c3a 0%, #228b22 50%, #0f4c3a 100%);
+            border: 8px solid #8b4513;
+            border-radius: 10px;
+            box-shadow: 
+                0 0 30px rgba(0,0,0,0.7),
+                inset 0 0 20px rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+
+        .table-surface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #006400 0%, 
+                #228b22 20%, 
+                #32cd32 50%, 
+                #228b22 80%, 
+                #006400 100%);
+        }
+
+        .center-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, #fff 0%, #f0f0f0 50%, #fff 100%);
+            transform: translateX(-50%);
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .side-lines {
+            position: absolute;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, #fff 0%, #f0f0f0 50%, #fff 100%);
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .side-lines.left { left: 0; }
+        .side-lines.right { right: 0; }
+
+        .net {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            width: 2px;
+            height: 20%;
+            background: #333;
+            transform: translateX(-50%);
+            box-shadow: 0 0 3px rgba(0,0,0,0.8);
+        }
+
+        .net::before, .net::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 1px;
+            background: #333;
+            left: -9px;
+        }
+
+        .net::before { top: 0; }
+        .net::after { bottom: 0; }
+
+        .score {
+            position: absolute;
+            top: 20px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .score.left { left: 40px; }
+        .score.right { right: 40px; }
+
+        .paddle {
+            position: absolute;
+            width: 12px;
+            height: 60px;
+            background: linear-gradient(45deg, #8b0000, #dc143c, #8b0000);
+            border-radius: 6px;
+            box-shadow: 
+                0 0 10px rgba(220,20,60,0.5),
+                inset 1px 1px 3px rgba(255,255,255,0.3);
+        }
+
+        .paddle.left { left: 25px; }
+        .paddle.right { right: 25px; }
+
+        .ball {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at 30% 30%, #fff, #ff6347, #fff);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 15px rgba(255,99,71,0.8),
+                inset 1px 1px 3px rgba(255,255,255,0.6);
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 36px;
+            text-align: center;
+            background: rgba(0,0,0,0.9);
+            padding: 30px 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: none;
+        }
+
+        .title {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="title">🏓 Table Tennis Game 🏓</div>
+    <div class="game-container">
+        <div class="table-surface"></div>
+        <div class="side-lines left"></div>
+        <div class="side-lines right"></div>
+        <div class="center-line"></div>
+        <div class="net"></div>
+        <div class="score left" id="leftScore">0</div>
+        <div class="score right" id="rightScore">0</div>
+        <div class="paddle left" id="leftPaddle"></div>
+        <div class="paddle right" id="rightPaddle"></div>
+        <div class="ball" id="ball"></div>
+        <div class="instructions">
+            <div><strong>プレイヤー操作:</strong> W/S キー でラケット移動</div>
+            <div><strong>ゲーム開始/リスタート:</strong> スペースキー</div>
+            <div><strong>勝利条件:</strong> 先に7点獲得</div>
+        </div>
+        <div class="game-over" id="gameOver">
+            <div id="winner"></div>
+            <div style="font-size: 18px; margin-top: 15px;">スペースキーでリスタート</div>
+        </div>
+    </div>
+
+    <script>
+        class TableTennisGame {
+            constructor() {
+                this.canvas = document.querySelector('.game-container');
+                this.leftPaddle = document.getElementById('leftPaddle');
+                this.rightPaddle = document.getElementById('rightPaddle');
+                this.ball = document.getElementById('ball');
+                this.leftScoreEl = document.getElementById('leftScore');
+                this.rightScoreEl = document.getElementById('rightScore');
+                this.gameOverEl = document.getElementById('gameOver');
+                this.winnerEl = document.getElementById('winner');
+
+                this.gameWidth = 900;
+                this.gameHeight = 500;
+                this.paddleHeight = 60;
+                this.paddleWidth = 12;
+                this.ballSize = 12;
+
+                this.leftScore = 0;
+                this.rightScore = 0;
+                this.gameRunning = false;
+                this.gameStarted = false;
+
+                this.leftPaddleY = (this.gameHeight - this.paddleHeight) / 2;
+                this.rightPaddleY = (this.gameHeight - this.paddleHeight) / 2;
+
+                this.ballX = this.gameWidth / 2;
+                this.ballY = this.gameHeight / 2;
+                this.ballVelX = 0;
+                this.ballVelY = 0;
+
+                this.keys = {};
+                this.paddleSpeed = 7;
+                this.maxBallSpeed = 8;
+
+                this.init();
+            }
+
+            init() {
+                this.updatePositions();
+                this.bindEvents();
+                this.gameLoop();
+            }
+
+            bindEvents() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.key.toLowerCase()] = true;
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        if (!this.gameRunning) {
+                            if (this.gameStarted) {
+                                this.reset();
+                            } else {
+                                this.startGame();
+                            }
+                        }
+                    }
+                });
+
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.key.toLowerCase()] = false;
+                });
+            }
+
+            startGame() {
+                this.gameRunning = true;
+                this.gameStarted = true;
+                this.resetBall();
+            }
+
+            updatePaddles() {
+                if (this.keys['w'] && this.leftPaddleY > 0) {
+                    this.leftPaddleY -= this.paddleSpeed;
+                }
+                if (this.keys['s'] && this.leftPaddleY < this.gameHeight - this.paddleHeight) {
+                    this.leftPaddleY += this.paddleSpeed;
+                }
+
+                this.updateAI();
+            }
+
+            updateAI() {
+                const ballCenterY = this.ballY + this.ballSize / 2;
+                const paddleCenterY = this.rightPaddleY + this.paddleHeight / 2;
+                const difficulty = 3.5;
+                const reactionDelay = 25;
+                
+                if (Math.random() < 0.12) return;
+                
+                const targetY = ballCenterY - this.paddleHeight / 2;
+                const currentDistance = Math.abs(paddleCenterY - ballCenterY);
+                
+                if (currentDistance > reactionDelay) {
+                    if (ballCenterY < paddleCenterY) {
+                        this.rightPaddleY = Math.max(0, this.rightPaddleY - difficulty);
+                    } else if (ballCenterY > paddleCenterY) {
+                        this.rightPaddleY = Math.min(this.gameHeight - this.paddleHeight, this.rightPaddleY + difficulty);
+                    }
+                }
+            }
+
+            updateBall() {
+                this.ballX += this.ballVelX;
+                this.ballY += this.ballVelY;
+
+                if (this.ballY <= 0 || this.ballY >= this.gameHeight - this.ballSize) {
+                    this.ballVelY = -this.ballVelY;
+                    this.ballY = Math.max(0, Math.min(this.gameHeight - this.ballSize, this.ballY));
+                }
+
+                if (this.ballX <= 37 && this.ballX >= 25 &&
+                    this.ballY + this.ballSize >= this.leftPaddleY && 
+                    this.ballY <= this.leftPaddleY + this.paddleHeight) {
+                    
+                    this.ballVelX = Math.abs(this.ballVelX);
+                    const relativeIntersectY = (this.leftPaddleY + this.paddleHeight/2) - (this.ballY + this.ballSize/2);
+                    const normalizedIntersectY = relativeIntersectY / (this.paddleHeight/2);
+                    this.ballVelY = normalizedIntersectY * -5;
+                    
+                    this.ballVelX = Math.min(this.ballVelX * 1.05, this.maxBallSpeed);
+                }
+
+                if (this.ballX >= this.gameWidth - 37 - this.ballSize && this.ballX <= this.gameWidth - 25 &&
+                    this.ballY + this.ballSize >= this.rightPaddleY && 
+                    this.ballY <= this.rightPaddleY + this.paddleHeight) {
+                    
+                    this.ballVelX = -Math.abs(this.ballVelX);
+                    const relativeIntersectY = (this.rightPaddleY + this.paddleHeight/2) - (this.ballY + this.ballSize/2);
+                    const normalizedIntersectY = relativeIntersectY / (this.paddleHeight/2);
+                    this.ballVelY = normalizedIntersectY * -5;
+                    
+                    this.ballVelX = Math.max(this.ballVelX * 1.05, -this.maxBallSpeed);
+                }
+
+                if (this.ballX < 0) {
+                    this.rightScore++;
+                    this.resetBall();
+                    this.checkWinner();
+                }
+
+                if (this.ballX > this.gameWidth) {
+                    this.leftScore++;
+                    this.resetBall();
+                    this.checkWinner();
+                }
+            }
+
+            resetBall() {
+                this.ballX = this.gameWidth / 2 - this.ballSize / 2;
+                this.ballY = this.gameHeight / 2 - this.ballSize / 2;
+                const angle = (Math.random() - 0.5) * Math.PI / 3;
+                const speed = 5;
+                this.ballVelX = Math.cos(angle) * speed * (Math.random() > 0.5 ? 1 : -1);
+                this.ballVelY = Math.sin(angle) * speed;
+            }
+
+            checkWinner() {
+                if (this.leftScore >= 7) {
+                    this.gameRunning = false;
+                    this.winnerEl.textContent = '🎉 プレイヤーの勝利! 🎉';
+                    this.gameOverEl.style.display = 'block';
+                } else if (this.rightScore >= 7) {
+                    this.gameRunning = false;
+                    this.winnerEl.textContent = '🤖 AIの勝利! 🤖';
+                    this.gameOverEl.style.display = 'block';
+                }
+            }
+
+            updatePositions() {
+                this.leftPaddle.style.top = this.leftPaddleY + 'px';
+                this.rightPaddle.style.top = this.rightPaddleY + 'px';
+                this.ball.style.left = this.ballX + 'px';
+                this.ball.style.top = this.ballY + 'px';
+                this.leftScoreEl.textContent = this.leftScore;
+                this.rightScoreEl.textContent = this.rightScore;
+            }
+
+            reset() {
+                this.leftScore = 0;
+                this.rightScore = 0;
+                this.gameRunning = true;
+                this.leftPaddleY = (this.gameHeight - this.paddleHeight) / 2;
+                this.rightPaddleY = (this.gameHeight - this.paddleHeight) / 2;
+                this.resetBall();
+                this.gameOverEl.style.display = 'none';
+            }
+
+            gameLoop() {
+                if (this.gameRunning) {
+                    this.updatePaddles();
+                    this.updateBall();
+                }
+                this.updatePositions();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+
+        new TableTennisGame();
+    </script>
+</body>
+</html>
